@@ -11,11 +11,19 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".TestingActivity"
+            android:screenOrientation="landscape"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_name"
             android:theme="@style/FullscreenTheme">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+
         </activity>
-        <activity android:name=".PatientDetailEntryActivity">
+
+        <activity
+            android:name=".PatientDetailEntryActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
