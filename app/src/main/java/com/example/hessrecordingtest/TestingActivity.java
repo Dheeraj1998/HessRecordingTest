@@ -6,54 +6,26 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.DisplayMetrics;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
-import android.widget.Toast;
 
-import java.util.List;
-
-import static android.R.attr.flipInterval;
-import static android.R.attr.left;
-import static android.R.attr.right;
-import static android.R.attr.start;
-
-/**
- * An example full-screen activity that shows and hides the system UI (i.e.
- * status bar and navigation/system bar) with user interaction.
- */
 public class TestingActivity extends AppCompatActivity {
-    /**
-     * Whether or not the system UI should be auto-hidden after
-     * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
-     */
     private static final boolean AUTO_HIDE = true;
-
-    /**
-     * If {@link #AUTO_HIDE} is set, the number of milliseconds to wait after
-     * user interaction before hiding the system UI.
-     */
     private static final int AUTO_HIDE_DELAY_MILLIS = 3000;
 
-    /**
-     * Some older devices needs a small delay between UI widget updates
-     * and a change of the status and navigation bar.
-     */
-    private static final int UI_ANIMATION_DELAY = 300;
-
     private View mContentView;
+
+    private static final int UI_ANIMATION_DELAY = 300;
     private View mControlsView;
     private boolean mVisible;
 
@@ -64,6 +36,7 @@ public class TestingActivity extends AppCompatActivity {
 
     private int resolution_value = 1200;
     private int circle_radius = 15;
+    private int correction_value = 150;
 
     private Canvas left_canvas;
     private Canvas right_canvas;
@@ -73,7 +46,8 @@ public class TestingActivity extends AppCompatActivity {
     private Bitmap right_imageBitmap;
 
     private int pointer_location_x = resolution_value/2;
-    private int pointer_location_y = (resolution_value + 170)/2;
+    // The correction value is used to compensate the height of the screen properly
+    private int pointer_location_y = (resolution_value + correction_value) / 2;
 
     private double outer_point_x = 0.098;
     private double outer_point_y = 0.135;
@@ -90,7 +64,7 @@ public class TestingActivity extends AppCompatActivity {
             (int) (resolution_value * outer_point_x),
             (int) (resolution_value * inner_point_horizontal)};
 
-    private int[] test_y_coordinates = {(resolution_value + 150)/2,
+    private int[] test_y_coordinates = {(resolution_value + correction_value) / 2,
             (int) (resolution_value * outer_point_y),
             (int) (resolution_value * inner_point_vertical),
             (int) (resolution_value * outer_point_y),
@@ -105,7 +79,7 @@ public class TestingActivity extends AppCompatActivity {
     private boolean reference_image_displayed = false;
 
     private boolean start_joystick = false;
-    private int[][] detected_locations = new int[8][2];
+    private int[][] detected_locations = new int[2][9];
     //endregion
 
     @Override
@@ -155,27 +129,24 @@ public class TestingActivity extends AppCompatActivity {
     //region Code for initialising the Hess testing
     private void startHessTest(){
         //region Setting up the left Image View
-        left_imageBitmap = Bitmap.createBitmap(resolution_value, resolution_value + 150, Bitmap.Config.ARGB_8888);
+        left_imageBitmap = Bitmap.createBitmap(resolution_value, resolution_value + correction_value, Bitmap.Config.ARGB_8888);
         left_canvas = new Canvas(left_imageBitmap);
 
         left_paint = new Paint();
         left_paint.setStyle(Paint.Style.FILL_AND_STROKE);
         left_paint.setColor(getResources().getColor(R.color.red_color));
 
-        left_canvas.drawCircle(resolution_value/2, (resolution_value + 150)/2, circle_radius, left_paint);
+        left_canvas.drawCircle(resolution_value / 2, (resolution_value + correction_value) / 2, circle_radius, left_paint);
         left_imageview.setImageBitmap(left_imageBitmap);
         //endregion
 
         //region Setting up the right Image View
-        right_imageBitmap = Bitmap.createBitmap(resolution_value, resolution_value + 150, Bitmap.Config.ARGB_8888);
+        right_imageBitmap = Bitmap.createBitmap(resolution_value, resolution_value + correction_value, Bitmap.Config.ARGB_8888);
         right_canvas = new Canvas(right_imageBitmap);
 
         right_paint = new Paint();
         right_paint.setStyle(Paint.Style.FILL_AND_STROKE);
         right_paint.setColor(getResources().getColor(R.color.green_color));
-
-        right_canvas.drawCircle(resolution_value/2, (resolution_value + 150)/2, circle_radius, right_paint);
-        right_imageview.setImageBitmap(right_imageBitmap);
         //endregion
 
         showTestPoint();
@@ -189,7 +160,7 @@ public class TestingActivity extends AppCompatActivity {
         // Check if the canvas variables have been initialised
         if(start_joystick) {
             if(direction.equals("UP")) {
-                left_imageBitmap = Bitmap.createBitmap(resolution_value, resolution_value + 150, Bitmap.Config.ARGB_8888);
+                left_imageBitmap = Bitmap.createBitmap(resolution_value, resolution_value + correction_value, Bitmap.Config.ARGB_8888);
                 left_canvas = new Canvas(left_imageBitmap);
 
                 pointer_location_y -= marker_move;
@@ -199,7 +170,7 @@ public class TestingActivity extends AppCompatActivity {
             }
 
             else if(direction.equals("DOWN")) {
-                left_imageBitmap = Bitmap.createBitmap(resolution_value, resolution_value + 150, Bitmap.Config.ARGB_8888);
+                left_imageBitmap = Bitmap.createBitmap(resolution_value, resolution_value + correction_value, Bitmap.Config.ARGB_8888);
                 left_canvas = new Canvas(left_imageBitmap);
 
                 pointer_location_y += marker_move;
@@ -209,7 +180,7 @@ public class TestingActivity extends AppCompatActivity {
             }
 
             else if(direction.equals("LEFT")) {
-                left_imageBitmap = Bitmap.createBitmap(resolution_value, resolution_value + 150, Bitmap.Config.ARGB_8888);
+                left_imageBitmap = Bitmap.createBitmap(resolution_value, resolution_value + correction_value, Bitmap.Config.ARGB_8888);
                 left_canvas = new Canvas(left_imageBitmap);
 
                 pointer_location_x -= marker_move;
@@ -219,7 +190,7 @@ public class TestingActivity extends AppCompatActivity {
             }
 
             else if(direction.equals("RIGHT")) {
-                left_imageBitmap = Bitmap.createBitmap(resolution_value, resolution_value + 150, Bitmap.Config.ARGB_8888);
+                left_imageBitmap = Bitmap.createBitmap(resolution_value, resolution_value + correction_value, Bitmap.Config.ARGB_8888);
                 left_canvas = new Canvas(left_imageBitmap);
 
                 pointer_location_x += marker_move;
@@ -241,7 +212,7 @@ public class TestingActivity extends AppCompatActivity {
 
     //region Code for handling the showing of test points
     private void showTestPoint(){
-        right_imageBitmap = Bitmap.createBitmap(resolution_value, resolution_value + 150, Bitmap.Config.ARGB_8888);
+        right_imageBitmap = Bitmap.createBitmap(resolution_value, resolution_value + correction_value, Bitmap.Config.ARGB_8888);
         right_canvas = new Canvas(right_imageBitmap);
 
         right_canvas.drawCircle(test_x_coordinates[test_point_index], test_y_coordinates[test_point_index], circle_radius, right_paint);
@@ -257,8 +228,8 @@ public class TestingActivity extends AppCompatActivity {
 
         // Storing the detected values in an array
         if(test_point_index > 0) {
-            detected_locations[test_point_index - 1][0] = pointer_location_x;
-            detected_locations[test_point_index - 1][1] = pointer_location_y;
+            detected_locations[0][test_point_index - 1] = pointer_location_x;
+            detected_locations[1][test_point_index - 1] = pointer_location_y;
         }
 
         test_point_index++;
@@ -293,10 +264,29 @@ public class TestingActivity extends AppCompatActivity {
             Log.i("custom", "Button 2");
 
             if(test_point_index > 8){
-                for(int index = 0; index < detected_locations.length; index++){
-                    Log.i("custom", "\nPoint " + (index + 1) + " - " + detected_locations[index][0]);
-                    Log.i("custom", "Point " + (index + 1) + " - " + detected_locations[index][1]);
+                detected_locations[0][8] = pointer_location_x;
+                detected_locations[1][8] = pointer_location_y;
+
+                for (int index = 0; index < detected_locations[0].length; index++) {
+                    Log.i("custom", "\nPoint " + (index + 1) + " - " + detected_locations[0][index]);
+                    Log.i("custom", "Point " + (index + 1) + " - " + detected_locations[1][index]);
                 }
+
+                // Initialising the intent and bundling the data
+                Intent temp = new Intent(TestingActivity.this, TestReportActivity.class);
+
+                int array_test_x_cords[] = test_x_coordinates;
+                int array_test_y_cords[] = test_y_coordinates;
+                int array_generated_x_cords[] = detected_locations[0];
+                int array_generated_y_cords[] = detected_locations[1];
+
+                temp.putExtra("test_x_coordinates", array_test_x_cords);
+                temp.putExtra("test_y_coordinates", array_test_y_cords);
+                temp.putExtra("x_detected_locations", array_generated_x_cords);
+                temp.putExtra("y_detected_locations", array_generated_y_cords);
+
+                startActivity(temp);
+                finish();
             }
 
             else {
