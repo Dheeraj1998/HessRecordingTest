@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -13,10 +14,12 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -60,7 +63,7 @@ public class TestingActivity extends AppCompatActivity {
     private ImageView right_imageview;
 
     private int resolution_value = 1200;
-    private int circle_radius = 30;
+    private int circle_radius = 15;
 
     private Canvas left_canvas;
     private Canvas right_canvas;
@@ -70,14 +73,15 @@ public class TestingActivity extends AppCompatActivity {
     private Bitmap right_imageBitmap;
 
     private int pointer_location_x = resolution_value/2;
-    private int pointer_location_y = resolution_value/2;
+    private int pointer_location_y = (resolution_value + 170)/2;
 
     private double outer_point_x = 0.098;
     private double outer_point_y = 0.135;
     private double inner_point_horizontal = 0.165;
     private double inner_point_vertical = 0.208;
 
-    private int[] test_x_coordinates = {(int) (resolution_value * outer_point_x),
+    private int[] test_x_coordinates = {resolution_value/2,
+            (int) (resolution_value * outer_point_x),
             (resolution_value/2),
             (int) (resolution_value * (1 - outer_point_x)),
             (int) (resolution_value * (1 - inner_point_horizontal)),
@@ -86,7 +90,8 @@ public class TestingActivity extends AppCompatActivity {
             (int) (resolution_value * outer_point_x),
             (int) (resolution_value * inner_point_horizontal)};
 
-    private int[] test_y_coordinates = {(int) (resolution_value * outer_point_y),
+    private int[] test_y_coordinates = {(resolution_value + 150)/2,
+            (int) (resolution_value * outer_point_y),
             (int) (resolution_value * inner_point_vertical),
             (int) (resolution_value * outer_point_y),
             (resolution_value/2),
@@ -100,6 +105,7 @@ public class TestingActivity extends AppCompatActivity {
     private boolean reference_image_displayed = false;
 
     private boolean start_joystick = false;
+    private int[][] detected_locations = new int[8][2];
     //endregion
 
     @Override
@@ -142,31 +148,33 @@ public class TestingActivity extends AppCompatActivity {
         registerReceiver(mReceiver, mIntentFilter);
 
         startHessTest();
+
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     //region Code for initialising the Hess testing
     private void startHessTest(){
         //region Setting up the left Image View
-        left_imageBitmap = Bitmap.createBitmap(resolution_value, resolution_value, Bitmap.Config.ARGB_8888);
+        left_imageBitmap = Bitmap.createBitmap(resolution_value, resolution_value + 150, Bitmap.Config.ARGB_8888);
         left_canvas = new Canvas(left_imageBitmap);
 
         left_paint = new Paint();
         left_paint.setStyle(Paint.Style.FILL_AND_STROKE);
         left_paint.setColor(getResources().getColor(R.color.red_color));
 
-        left_canvas.drawCircle(resolution_value/2, resolution_value/2, circle_radius, left_paint);
+        left_canvas.drawCircle(resolution_value/2, (resolution_value + 150)/2, circle_radius, left_paint);
         left_imageview.setImageBitmap(left_imageBitmap);
         //endregion
 
         //region Setting up the right Image View
-        right_imageBitmap = Bitmap.createBitmap(resolution_value, resolution_value, Bitmap.Config.ARGB_8888);
+        right_imageBitmap = Bitmap.createBitmap(resolution_value, resolution_value + 150, Bitmap.Config.ARGB_8888);
         right_canvas = new Canvas(right_imageBitmap);
 
         right_paint = new Paint();
         right_paint.setStyle(Paint.Style.FILL_AND_STROKE);
         right_paint.setColor(getResources().getColor(R.color.green_color));
 
-        right_canvas.drawCircle(resolution_value/2, resolution_value/2, circle_radius, right_paint);
+        right_canvas.drawCircle(resolution_value/2, (resolution_value + 150)/2, circle_radius, right_paint);
         right_imageview.setImageBitmap(right_imageBitmap);
         //endregion
 
@@ -181,7 +189,8 @@ public class TestingActivity extends AppCompatActivity {
         // Check if the canvas variables have been initialised
         if(start_joystick) {
             if(direction.equals("UP")) {
-                left_canvas.drawColor(getResources().getColor(R.color.canvas_color));
+                left_imageBitmap = Bitmap.createBitmap(resolution_value, resolution_value + 150, Bitmap.Config.ARGB_8888);
+                left_canvas = new Canvas(left_imageBitmap);
 
                 pointer_location_y -= marker_move;
 
@@ -190,7 +199,8 @@ public class TestingActivity extends AppCompatActivity {
             }
 
             else if(direction.equals("DOWN")) {
-                left_canvas.drawColor(getResources().getColor(R.color.canvas_color));
+                left_imageBitmap = Bitmap.createBitmap(resolution_value, resolution_value + 150, Bitmap.Config.ARGB_8888);
+                left_canvas = new Canvas(left_imageBitmap);
 
                 pointer_location_y += marker_move;
 
@@ -199,7 +209,8 @@ public class TestingActivity extends AppCompatActivity {
             }
 
             else if(direction.equals("LEFT")) {
-                left_canvas.drawColor(getResources().getColor(R.color.canvas_color));
+                left_imageBitmap = Bitmap.createBitmap(resolution_value, resolution_value + 150, Bitmap.Config.ARGB_8888);
+                left_canvas = new Canvas(left_imageBitmap);
 
                 pointer_location_x -= marker_move;
 
@@ -208,7 +219,8 @@ public class TestingActivity extends AppCompatActivity {
             }
 
             else if(direction.equals("RIGHT")) {
-                left_canvas.drawColor(getResources().getColor(R.color.canvas_color));
+                left_imageBitmap = Bitmap.createBitmap(resolution_value, resolution_value + 150, Bitmap.Config.ARGB_8888);
+                left_canvas = new Canvas(left_imageBitmap);
 
                 pointer_location_x += marker_move;
 
@@ -216,22 +228,48 @@ public class TestingActivity extends AppCompatActivity {
                 left_imageview.setImageBitmap(left_imageBitmap);
             }
         }
+
+        if(reference_image_displayed){
+            left_imageview.setBackgroundResource(R.drawable.pincushion_distortion);
+        }
+
+        else{
+            left_imageview.setBackgroundResource(0);
+        }
     }
     //endregion
 
     //region Code for handling the showing of test points
     private void showTestPoint(){
-        right_canvas.drawColor(getResources().getColor(R.color.canvas_color));
+        right_imageBitmap = Bitmap.createBitmap(resolution_value, resolution_value + 150, Bitmap.Config.ARGB_8888);
+        right_canvas = new Canvas(right_imageBitmap);
+
         right_canvas.drawCircle(test_x_coordinates[test_point_index], test_y_coordinates[test_point_index], circle_radius, right_paint);
         right_imageview.setImageBitmap(right_imageBitmap);
 
+        if(reference_image_displayed){
+            right_imageview.setBackgroundResource(R.drawable.pincushion_distortion);
+        }
+
+        else{
+            right_imageview.setBackgroundResource(0);
+        }
+
+        // Storing the detected values in an array
+        if(test_point_index > 0) {
+            detected_locations[test_point_index - 1][0] = pointer_location_x;
+            detected_locations[test_point_index - 1][1] = pointer_location_y;
+        }
+
         test_point_index++;
     }
-    //endregion Code for displaying the reference images (Pincushion Distortion Image)
+    //endregion
+
+    //region Code for displaying the reference images (Pincushion Distortion Image)
     private void displayReferenceImage(){
         if(!reference_image_displayed){
-            left_imageview.setImageResource(R.drawable.pincushion_distortion);
-            right_imageview.setImageResource(R.drawable.pincushion_distortion);
+            left_imageview.setBackgroundResource(R.drawable.pincushion_distortion);
+            right_imageview.setBackgroundResource(R.drawable.pincushion_distortion);
 
             reference_image_displayed = true;
         }
@@ -240,10 +278,13 @@ public class TestingActivity extends AppCompatActivity {
             left_imageview.setImageBitmap(left_imageBitmap);
             right_imageview.setImageBitmap(right_imageBitmap);
 
+            left_imageview.setBackgroundResource(0);
+            right_imageview.setBackgroundResource(0);
+
             reference_image_displayed = false;
         }
     }
-    //region
+    //endregion
 
     //region Code for setting up the BroadcastReceiver and the gamepad buttons
     @Override
@@ -251,11 +292,16 @@ public class TestingActivity extends AppCompatActivity {
         if(keyCode == 97){
             Log.i("custom", "Button 2");
 
-            if(test_point_index > 7){
-                test_point_index = 0;
+            if(test_point_index > 8){
+                for(int index = 0; index < detected_locations.length; index++){
+                    Log.i("custom", "\nPoint " + (index + 1) + " - " + detected_locations[index][0]);
+                    Log.i("custom", "Point " + (index + 1) + " - " + detected_locations[index][1]);
+                }
             }
 
-            showTestPoint();
+            else {
+                showTestPoint();
+            }
         }
 
         else if(keyCode == 96){
