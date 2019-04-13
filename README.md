@@ -1,4 +1,5 @@
 # HessRecordingTest
+<p align = "center"><img src="https://github.com/Dheeraj1998/HessRecordingTest/blob/master/app/src/main/res/mipmap-hdpi/ic_launcher.png" width = 10%"></img></p>
 This is a VR based testing device for diplopia. The application uses a bluetooth joystick to 
 connect with the mobile and then control the location of the red point
 to make it seem that the both the points overlap with each other when the mobile is worn in a VR device.
